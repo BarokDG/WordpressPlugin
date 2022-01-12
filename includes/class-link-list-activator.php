@@ -33,7 +33,7 @@ class Link_List_Activator {
 		// Links Page Arguments
 		$links_page_args = array(
 			'post_title'   => __( 'Links', 'links-save' ),
-			'post_content' => '[linklist]',
+			'post_content' => '[linkslist]',
 			'post_status'  => 'publish',
 			'post_type'    => 'page'
 		);

@@ -1,15 +1,9 @@
 <?php
 
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
  *
  * @wordpress-plugin
- * Plugin Name:       Link List
+ * Plugin Name:       Links List
  * Description:       The plugin helps to point followers and subscribers to social profiles, eCommerce store, or content you want to share.
  * Version:           1.0.0
  * Author:            Barok Dagim
@@ -49,27 +43,64 @@ register_deactivation_hook( __FILE__, 'deactivate_link_list' );
  */
 
 class LinkList {
-
   public function __construct() {
-    add_action('template_include', [$this, 'template_suggestion']);
+
+    add_action('template_include', [$this, 'linklist_template']);
+    add_action('admin_menu', array($this, 'adminMenu'));
+    add_action('admin_init', array($this, 'settings'));
   }
 
-  function template_suggestion($template) {
+  function linklist_template($template) {
 
     global $wp;
 
     $current_slug = $wp->request;
 
-    $custom_template = WP_PLUGIN_DIR . '/plugin-name/linklist-template.php';
+    $custom_template = WP_PLUGIN_DIR . '/plugin-name/linkslist-template.php';
 
     if ($current_slug == 'links' and $custom_template != '') {
-
       status_header(200);
       return $custom_template;
     }
 
     return $template;
   }
+
+  function adminMenu() {
+
+    add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-smiley', 100);
+  }
+	
+  function settingsHTML() { ?>
+    <div class="wrap">
+      <h1>Links list settings</h1>
+      <form action="options.php" method="POST">
+        <?php 
+          settings_fields('linkslistplugin');
+          do_settings_sections('linkslist-settings-page');
+          submit_button();
+        ?>
+      </form>
+    </div>
+  <?php }
+
+  function settings() {
+    add_settings_section('llp_first_section', null, null, 'linkslist-settings-page');
+
+    add_settings_field('llp_profile_title', 'Profile title', array($this, 'profile_titleHTML'), 'linkslist-settings-page', 'llp_first_section');
+    register_setting( 'linkslistplugin', 'llp_profile_title', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'Profile Title'));
+    
+    add_settings_field('llp_description', 'Short description', array($this, 'descriptionHTML'), 'linkslist-settings-page', 'llp_first_section');
+    register_setting('linkslistplugin', 'llp_description', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'You will see your bio/description here'));
+  }
+
+  function profile_titleHTML() { ?>
+    <input type="text" name="llp_profile_title">
+  <?php }
+
+  function descriptionHTML() { ?>
+    <input type="text" name="llp_description">
+  <?php }
 
   public static function Foo() {
 
