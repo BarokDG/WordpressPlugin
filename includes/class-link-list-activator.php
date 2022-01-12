@@ -20,7 +20,7 @@
  * @subpackage Plugin_Name/includes
  * @author     Your Name <email@example.com>
  */
-class Plugin_Name_Activator {
+class Link_List_Activator {
 
 	/**
 	 * Short Description. (use period)
@@ -30,7 +30,18 @@ class Plugin_Name_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
+		// Links Page Arguments
+		$links_page_args = array(
+			'post_title'   => __( 'Links', 'links-save' ),
+			'post_content' => '[linklist]',
+			'post_status'  => 'publish',
+			'post_type'    => 'page'
+		);
+		// Insert the links page and get its id.
+		$links_page_id = wp_insert_post( $links_page_args );
 
+		// Save links page id to the database.
+		add_option( 'links_save_page_id', $links_page_id );
 	}
 
 }

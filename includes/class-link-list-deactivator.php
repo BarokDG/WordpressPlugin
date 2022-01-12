@@ -20,7 +20,7 @@
  * @subpackage Plugin_Name/includes
  * @author     Your Name <email@example.com>
  */
-class Plugin_Name_Deactivator {
+class Link_List_Deactivator {
 
 	/**
 	 * Short Description. (use period)
@@ -30,7 +30,19 @@ class Plugin_Name_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
+		// Get links page id.
+		$links_page_id = get_option( 'links_save_page_id' );
 
+		// Check if the links page id exists.
+		if ( $links_page_id ) {
+
+			// Delete links page.
+			wp_delete_post( $links_page_id, true );
+
+			// Delete links page id record in the database.
+			delete_option( 'links_save_page_id' );
+
+		}
 	}
 
 }
