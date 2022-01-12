@@ -48,6 +48,12 @@ class LinkList {
     add_action('template_include', [$this, 'linklist_template']);
     add_action('admin_menu', array($this, 'adminMenu'));
     add_action('admin_init', array($this, 'settings'));
+    add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+    add_action('admin_enqueue_scripts', array($this, 'media_library_script'));
+  }
+  
+  function media_library_script() {
+    wp_enqueue_script("media-js", plugins_url("/js/media.js", __FILE__ ), array('jquery'), '', true);
   }
 
   function linklist_template($template) {
@@ -85,7 +91,11 @@ class LinkList {
   <?php }
 
   function settings() {
+
     add_settings_section('llp_first_section', null, null, 'linkslist-settings-page');
+
+    add_settings_field('llp_profile_picture', 'Upload Image', array($this, 'profile_picHTML'), 'linkslist-settings-page', 'llp_first_section');  
+    register_setting("linkslistplugin", "llp_profile_picture");
 
     add_settings_field('llp_profile_title', 'Profile title', array($this, 'profile_titleHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting( 'linkslistplugin', 'llp_profile_title', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'Profile Title'));
@@ -94,8 +104,34 @@ class LinkList {
     register_setting('linkslistplugin', 'llp_description', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'You will see your bio/description here'));
   }
 
+  function profile_picHTML() { 
+    $options = get_option('llp_profile_picture');
+    $default_image = 'https://www.placehold.it/115x115';
+ 
+    if (!empty($options)) {
+        $image_attributes = wp_get_attachment_image_src($options, 'full');
+        $src = $image_attributes[0];
+        $value = $options;
+    } else {
+        $src = $default_image;
+        $value = '';
+    }
+ 
+    // Print HTML field
+    echo '
+        <div class="upload" style="max-width:400px;">
+            <img data-src="' . $default_image . '" src="' . $src . '" style="max-width:100%; height:auto;" />
+            <div>
+                <input type="hidden" name="llp_profile_picture" id="llp_profile_picture" value="' . $value . '" />
+                <button type="submit" class="upload_image_button button">' . __('Upload', 'igsosd') . '</button>
+                <button type="submit" class="remove_image_button button">&times;</button>
+            </div>
+        </div>
+    ';
+  }
+
   function profile_titleHTML() { ?>
-    <input type="text" name="llp_profile_title">
+    <input type="text" name="llp_profile_title" placeholder="<?php echo esc_attr(get_option('llp_profile_title')) ?>">
   <?php }
 
   function descriptionHTML() { ?>
@@ -104,20 +140,14 @@ class LinkList {
 
   public static function Foo() {
 
-    // Do whatever you need to do to build your markup.
-    $output = '<div>';
-    $output .= 'Foo';
-    $output .= '</div>';
+    $output = '<h3>' . esc_html(get_option('llp_profile_title')) . '</h3><p>';
 
     return $output;
   }
 
   public static function Bar() {
 
-    // Do whatever you need to do to build your markup.
-    $output = '<div>';
-    $output .= 'Bar';
-    $output .= '</div>';
+    $output = '<img src="' . get_option('llp_profile_picture'). '" alt="" />';
 
     return $output;
   }
