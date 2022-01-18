@@ -1,18 +1,6 @@
 <head>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-    }
-    
-    .linkslist-main {
-      min-height: 100vh;
-      background: red;
-    }
-  </style>
+  <link rel="stylesheet" href="<?php echo plugins_url( "css/linkslist-template.css", __FILE__ ) ?>">
 </head>
 
-<div class="linkslist-main">
-  <?php echo LinkList::Foo();?>
-  <?php echo LinkList::Bar();?>
-</div>
+<?php echo LinkList::Output();?>
+

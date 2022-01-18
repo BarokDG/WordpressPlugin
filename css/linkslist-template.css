@@ -1,1 +1,19 @@
+* {
+  box-sizing: border-box;
+  margin: 0 !important;
+}
 
+.linkslist-main {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.linkslist-main img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+}

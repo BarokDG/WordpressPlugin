@@ -48,7 +48,7 @@ class LinkList {
     add_action('template_include', [$this, 'linklist_template']);
     add_action('admin_menu', array($this, 'adminMenu'));
     add_action('admin_init', array($this, 'settings'));
-    add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+    add_action('admin_enqueue_scripts', 'wp_enqueue_media' );
     add_action('admin_enqueue_scripts', array($this, 'media_library_script'));
   }
   
@@ -64,7 +64,8 @@ class LinkList {
 
     $custom_template = WP_PLUGIN_DIR . '/plugin-name/linkslist-template.php';
 
-    if ($current_slug == 'links' and $custom_template != '') {
+    if ($current_slug == 'links' and $custom_template != '') { 
+
       status_header(200);
       return $custom_template;
     }
@@ -74,7 +75,7 @@ class LinkList {
 
   function adminMenu() {
 
-    add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-smiley', 100);
+    add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
   }
 	
   function settingsHTML() { ?>
@@ -102,10 +103,13 @@ class LinkList {
     
     add_settings_field('llp_description', 'Short description', array($this, 'descriptionHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting('linkslistplugin', 'llp_description', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'You will see your bio/description here'));
+
+    add_settings_field('llp_background_image', 'Upload background image', array($this, 'background_imageHTML'), 'linkslist-settings-page', 'llp_first_section');
+    register_setting("linkslistplugin", "llp_background_image");
   }
 
-  function profile_picHTML() { 
-    $options = get_option('llp_profile_picture');
+  function background_imageHTML() {
+    $options = get_option('llp_background_image');
     $default_image = 'https://www.placehold.it/115x115';
  
     if (!empty($options)) {
@@ -117,39 +121,74 @@ class LinkList {
         $value = '';
     }
  
-    // Print HTML field
     echo '
-        <div class="upload" style="max-width:400px;">
-            <img data-src="' . $default_image . '" src="' . $src . '" style="max-width:100%; height:auto;" />
+        <div class="upload" style="max-width:150px;">
+            <img data-src="' . $default_image . '" src="' . $src . '" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" />
+            <div>
+                <input type="hidden" name="llp_background_image" id="llp_background_image" value="' . $value . '" />
+                <button type="submit" class="upload_image_button button">' . __('Upload', 'igsosd') . '</button>
+                <button type="submit" class="remove_image_button button">Delete</button>
+            </div>
+        </div>
+    ';
+
+  }
+
+  function profile_picHTML() { 
+    $options = get_option('llp_profile_picture');
+    $default_image = '';
+ 
+    if (!empty($options)) {
+        $image_attributes = wp_get_attachment_image_src($options, 'full');
+        $src = $image_attributes[0];
+        $value = $options;
+    } else {
+        $src = $default_image;
+        $value = '';
+    }
+ 
+    echo '
+        <div class="upload" style="max-width:150px;">
+            <img data-src="' . $default_image . '" src="' . $src . '" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" />
             <div>
                 <input type="hidden" name="llp_profile_picture" id="llp_profile_picture" value="' . $value . '" />
                 <button type="submit" class="upload_image_button button">' . __('Upload', 'igsosd') . '</button>
-                <button type="submit" class="remove_image_button button">&times;</button>
+                <button type="submit" class="remove_image_button button">Delete</button>
             </div>
         </div>
     ';
   }
 
   function profile_titleHTML() { ?>
-    <input type="text" name="llp_profile_title" placeholder="<?php echo esc_attr(get_option('llp_profile_title')) ?>">
+    <input type="text" name="llp_profile_title" value="<?php echo esc_attr(get_option('llp_profile_title')) ?>">
   <?php }
 
   function descriptionHTML() { ?>
-    <input type="text" name="llp_description">
+    <textarea type="text" name="llp_description" placeholder="Bio/description"><?php echo esc_html(get_option('llp_description', 'Bio/description')) ?></textarea>
   <?php }
 
-  public static function Foo() {
+  public static function Output() {
 
-    $output = '<h3>' . esc_html(get_option('llp_profile_title')) . '</h3><p>';
+    $image_attributes = wp_get_attachment_image_src(get_option('llp_profile_picture'), 'full');
+    $src = $image_attributes[0] ?? '';
 
-    return $output;
-  }
+    $background_image = wp_get_attachment_image_src(get_option('llp_background_image'), 'full');
+    $bg_src = $background_image[0] ?? '';
+    
+    // $output = '';
+    // $output .= '<div class="linkslist-main" style="background-image: url(' . $bg_src . ')">';
+    // $output .= '<img src="' . $src . '" alt="" />';
+    // $output .= '<h3>' . esc_html(get_option('llp_profile_title')) . '</h3>';
+    // $output .= '<p>' . esc_html(get_option('llp_description')) . '</p>';
+    // $output .= "</div>";
 
-  public static function Bar() {
-
-    $output = '<img src="' . get_option('llp_profile_picture'). '" alt="" />';
-
-    return $output;
+    // return $output;
+    echo '<div class="linkslist-main" style="background-image: url(' . $bg_src . ')">
+            <img src="' . $src . '" alt="" />
+            <h3>' . esc_html(get_option('llp_profile_title')) . '</h3>
+            <p>' . esc_html(get_option('llp_description')) . '</p>
+          </div>
+    ';
   }
 
 }
