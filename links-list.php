@@ -44,8 +44,7 @@ register_deactivation_hook( __FILE__, 'deactivate_link_list' );
 
 class LinkList {
   public function __construct() {
-
-    add_action('template_include', [$this, 'linklist_template']);
+    add_action('template_include', array($this, 'linklist_template'));
     add_action('admin_menu', array($this, 'adminMenu'));
     add_action('admin_init', array($this, 'settings'));
     add_action('admin_enqueue_scripts', 'wp_enqueue_media' );
@@ -57,7 +56,6 @@ class LinkList {
   }
 
   function linklist_template($template) {
-
     global $wp;
 
     $current_slug = $wp->request;
@@ -74,7 +72,6 @@ class LinkList {
   }
 
   function adminMenu() {
-
     add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
   }
 	
@@ -92,7 +89,6 @@ class LinkList {
   <?php }
 
   function settings() {
-
     add_settings_section('llp_first_section', null, null, 'linkslist-settings-page');
 
     add_settings_field('llp_profile_picture', 'Upload Image', array($this, 'profile_picHTML'), 'linkslist-settings-page', 'llp_first_section');  
@@ -106,11 +102,23 @@ class LinkList {
 
     add_settings_field('llp_background_image', 'Upload background image', array($this, 'background_imageHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting("linkslistplugin", "llp_background_image");
+
+    add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
+
+    add_settings_field( 'llp_link_1_title', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
+    register_setting( 'linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
+
+    register_setting( 'linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
   }
+
+  function links_listHTML() { ?>
+    <input type="text" name="llp_link_1_title" value="<?php echo esc_attr(get_option('llp_link_1_title')) ?>">
+    <input type="text" name="llp_link_1_url" value="<?php echo esc_attr(esc_url(get_option('llp_link_1_url'))) ?>">
+  <?php }
 
   function background_imageHTML() {
     $options = get_option('llp_background_image');
-    $default_image = 'https://www.placehold.it/115x115';
+    $default_image = '';
  
     if (!empty($options)) {
         $image_attributes = wp_get_attachment_image_src($options, 'full');
@@ -164,7 +172,7 @@ class LinkList {
   <?php }
 
   function descriptionHTML() { ?>
-    <textarea type="text" name="llp_description" placeholder="Bio/description"><?php echo esc_html(get_option('llp_description', 'Bio/description')) ?></textarea>
+    <textarea type="text" name="llp_description" placeholder="Bio/description"><?php echo esc_html(get_option('llp_description')) ?></textarea>
   <?php }
 
   public static function Output() {
@@ -175,22 +183,15 @@ class LinkList {
     $background_image = wp_get_attachment_image_src(get_option('llp_background_image'), 'full');
     $bg_src = $background_image[0] ?? '';
     
-    // $output = '';
-    // $output .= '<div class="linkslist-main" style="background-image: url(' . $bg_src . ')">';
-    // $output .= '<img src="' . $src . '" alt="" />';
-    // $output .= '<h3>' . esc_html(get_option('llp_profile_title')) . '</h3>';
-    // $output .= '<p>' . esc_html(get_option('llp_description')) . '</p>';
-    // $output .= "</div>";
-
-    // return $output;
     echo '<div class="linkslist-main" style="background-image: url(' . $bg_src . ')">
             <img src="' . $src . '" alt="" />
-            <h3>' . esc_html(get_option('llp_profile_title')) . '</h3>
-            <p>' . esc_html(get_option('llp_description')) . '</p>
+            <h3>' . get_option('llp_profile_title') . '</h3>
+            <p>' . get_option('llp_description') . '</p>
+
+            <a href="' . get_option('llp_link_1_url') . '">' . get_option('llp_link_1_title') . '</a>
           </div>
     ';
   }
-
 }
 
 new LinkList();
