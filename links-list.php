@@ -106,14 +106,26 @@ class LinkList {
     add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
 
     add_settings_field( 'llp_link_1_title', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
-    register_setting( 'linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
 
-    register_setting( 'linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
+
+    add_settings_field('llp_announcement', "Announcemnet", array($this, 'announcementHTML'), 'linkslist-settings-page', 'llp_first_section');
+    register_setting("linkslistplugin", "llp_announcement", array('sanitize_callback' => 'sanitize_text_field'));
+
+    register_setting("linkslistplugin", "llp_show_announcement", array('sanitize_callback' => 'sanitize_text_field'));
   }
 
+  function announcementHTML() { ?>
+    <textarea type="text" name="llp_announcement" id=""><?= esc_html(get_option( "llp_announcement")) ?></textarea>
+
+    <label for="llp_show_announcemnet">Show banner</label>
+    <input type="checkbox" name="llp_show_announcement" id="" <?= get_option( "llp_show_announcement") ? "checked" : "" ?>>
+  <?php }
+
   function links_listHTML() { ?>
-    <input type="text" name="llp_link_1_title" value="<?php echo esc_attr(get_option('llp_link_1_title')) ?>">
-    <input type="text" name="llp_link_1_url" value="<?php echo esc_attr(esc_url(get_option('llp_link_1_url'))) ?>">
+    <input type="text" name="llp_link_1_title" value="<?= esc_attr(get_option('llp_link_1_title')) ?>">
+    <input type="text" name="llp_link_1_url" value="<?= esc_attr(esc_url(get_option('llp_link_1_url'))) ?>">
   <?php }
 
   function background_imageHTML() {
@@ -168,11 +180,11 @@ class LinkList {
   }
 
   function profile_titleHTML() { ?>
-    <input type="text" name="llp_profile_title" value="<?php echo esc_attr(get_option('llp_profile_title')) ?>">
+    <input type="text" name="llp_profile_title" value="<?= esc_attr(get_option('llp_profile_title')) ?>">
   <?php }
 
   function descriptionHTML() { ?>
-    <textarea type="text" name="llp_description" placeholder="Bio/description"><?php echo esc_html(get_option('llp_description')) ?></textarea>
+    <textarea type="text" name="llp_description" placeholder="Bio/description"><?= esc_html(get_option('llp_description')) ?></textarea>
   <?php }
 
   public static function Output() {
@@ -183,15 +195,20 @@ class LinkList {
     $background_image = wp_get_attachment_image_src(get_option('llp_background_image'), 'full');
     $bg_src = $background_image[0] ?? '';
     
-    echo '<div class="linkslist-main" style="background-image: url(' . $bg_src . ')">
-            <img src="' . $src . '" alt="" />
-            <h3>' . get_option('llp_profile_title') . '</h3>
-            <p>' . get_option('llp_description') . '</p>
+    ?>
+    <div class="linkslist-main" style="background-image: url(' . $bg_src . ')">
+      <div class="linkslist-banner"><?php
+        if (get_option( "llp_show_announcement")) {
+          echo  get_option("llp_announcement"); 
+        }
+      ?></div>
+      <img src="<?= $src ?>" alt="" />
+      <h3><?= get_option('llp_profile_title') ?></h3>
+      <p><?= get_option('llp_description') ?></p>
 
-            <a href="' . get_option('llp_link_1_url') . '">' . get_option('llp_link_1_title') . '</a>
-          </div>
-    ';
-  }
+      <a href="<?= get_option('llp_link_1_url') ?>"><?= get_option('llp_link_1_title') ?></a>
+    </div>
+  <?php }
 }
 
 new LinkList();
