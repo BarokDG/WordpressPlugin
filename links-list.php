@@ -112,15 +112,19 @@ class LinkList {
   function settings() {
     add_settings_section('llp_first_section', null, null, 'linkslist-settings-page');
 
+    // Profile picture
     add_settings_field('llp_profile_picture', 'Upload Image', array($this, 'profile_picHTML'), 'linkslist-settings-page', 'llp_first_section');  
     register_setting("linkslistplugin", "llp_profile_picture");
 
+    // Proifle title
     add_settings_field('llp_profile_title', 'Profile title', array($this, 'profile_titleHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting( 'linkslistplugin', 'llp_profile_title', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'Profile Title'));
     
+    // Description
     add_settings_field('llp_description', 'Short description', array($this, 'descriptionHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting('linkslistplugin', 'llp_description', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'You will see your bio/description here'));
 
+    // Background Image
     add_settings_field('llp_background_image', 'Upload background image', array($this, 'background_imageHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting("linkslistplugin", "llp_background_image");
 
@@ -132,10 +136,23 @@ class LinkList {
     // Second section
     add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
 
-    // First link
-    add_settings_field( 'llp_link_1_title', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
+    // Links
+    add_settings_field('llp_links', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
     register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
     register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
+    
+    register_setting('linkslistplugin', 'llp_link_2_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_2_url', array('sanitize_callback' => 'sanitize_text_field'));
+    
+    register_setting('linkslistplugin', 'llp_link_3_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_3_url', array('sanitize_callback' => 'sanitize_text_field'));
+    
+    register_setting('linkslistplugin', 'llp_link_4_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_4_url', array('sanitize_callback' => 'sanitize_text_field'));
+    
+    register_setting('linkslistplugin', 'llp_link_5_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_5_url', array('sanitize_callback' => 'sanitize_text_field'));
+    
 
     // Social Icons options page
     add_settings_section( "llp_socials_section", null, null, "linkslist-socials-page");
@@ -175,7 +192,6 @@ class LinkList {
       <input type="text" name="llp_website_url" value=<?= get_option('llp_website_url') ?>>
       <label for="llp_website_url">Website</label>
     </div>
-  
   <?php }
 
   function announcementHTML() { ?>
@@ -186,8 +202,26 @@ class LinkList {
   <?php }
 
   function links_listHTML() { ?>
-    <input type="text" name="llp_link_1_title" value="<?= esc_attr(get_option('llp_link_1_title')) ?>">
-    <input type="text" name="llp_link_1_url" value="<?= esc_attr(esc_url(get_option('llp_link_1_url'))) ?>">
+    <div class="group-one">
+      <input type="text" name="llp_link_1_title" value="<?= esc_attr(get_option('llp_link_1_title')) ?>">
+      <input type="text" name="llp_link_1_url" value="<?= esc_attr(esc_url(get_option('llp_link_1_url'))) ?>">
+    </div>
+    <div class="group-one">
+      <input type="text" name="llp_link_2_title" value="<?= esc_attr(get_option('llp_link_2_title')) ?>">
+      <input type="text" name="llp_link_2_url" value="<?= esc_attr(esc_url(get_option('llp_link_2_url'))) ?>">
+    </div>
+    <div class="group-one">
+      <input type="text" name="llp_link_3_title" value="<?= esc_attr(get_option('llp_link_3_title')) ?>">
+      <input type="text" name="llp_link_3_url" value="<?= esc_attr(esc_url(get_option('llp_link_3_url'))) ?>">
+    </div>
+    <div class="group-one">
+      <input type="text" name="llp_link_4_title" value="<?= esc_attr(get_option('llp_link_4_title')) ?>">
+      <input type="text" name="llp_link_4_url" value="<?= esc_attr(esc_url(get_option('llp_link_4_url'))) ?>">
+    </div>
+    <div class="group-one">
+      <input type="text" name="llp_link_5_title" value="<?= esc_attr(get_option('llp_link_5_title')) ?>">
+      <input type="text" name="llp_link_5_url" value="<?= esc_attr(esc_url(get_option('llp_link_5_url'))) ?>">
+    </div>
   <?php }
 
   function background_imageHTML() {
@@ -268,18 +302,36 @@ class LinkList {
       <h3><?= get_option('llp_profile_title') ?></h3>
       <p><?= get_option('llp_description') ?></p>
 
+      <div class="llp-links">
+        <?php 
+          $links = [
+            "llp_link_1_title" => "llp_link_1_url", 
+            "llp_link_2_title" => "llp_link_2_url", 
+            "llp_link_3_title" => "llp_link_3_url",
+            "llp_link_4_title" => "llp_link_4_url",
+            "llp_link_5_title" => "llp_link_5_url",
+          ];
+
+          foreach ($links as $key => $value) { 
+            if (get_option($key) and get_option($value)) { ?>
+              <a href="<?= get_option($value) ?>"><?= get_option($key) ?></a>
+            <?php }
+          }
+        ?>
+      </div>
+
       <div class="llp-socials">
         <?php
           $socials = ["llp_facebook_url", "llp_twitter_url", "llp_instagram_url", "llp_codepen_url", "llp_email_url", "llp_website_url"];
 
-          foreach ($socials as $social) { ?>
-            <a href="<?= get_option($social) ?>"><?= explode("_", $social)[1] ?></a> 
-          <?php }
+          foreach ($socials as $social) { 
+            if (get_option($social)) { ?>
+              <a href="<?= get_option($social) ?? "" ?>"><?= explode("_", $social)[1] ?></a> 
+            <?php }
+          }
         
         ?>
       </div>
-
-      <a href="<?= get_option('llp_link_1_url') ?>"><?= get_option('llp_link_1_title') ?></a>
     </div>
   <?php }
 }
