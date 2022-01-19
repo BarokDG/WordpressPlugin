@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+}
+
+.appearance-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.llp-appearance {
+  margin-bottom: 10px;
+}
+
+.llp-preview {
+  height: 300px;
+  width: 300px;
+
+  padding: 10px;
+
+  border: 1px solid;
+  background: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.llp-preview a {
+  display: block;
+  text-decoration: none;
+  color: black;
+
+  height: 50px;
+  margin-bottom: 20px;
+}
+
+.default {
+  background: black;
+}
+
+.default:hover {
+  background: none;
+  border: 2px solid;
+}
+
+.classy {
+  background: blue;
+  border-radius: 10px;
+}

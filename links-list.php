@@ -75,7 +75,14 @@ class LinkList {
   function adminMenu() {
     add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
     $socialsPageHook = add_submenu_page( "linkslistsettings", "Links List Social Icons", "Social icons", "manage_options", "linkslistsocialiconsettings", array($this, 'socialSettingsHTML'));
+    $appearancePageHook = add_submenu_page( "linkslistsettings", "Appearance", "Choose style", "manage_options", "linkslistappearancesettings", array($this, 'appearanceSettingsHTML'));
+    
     add_action("load-{$socialsPageHook}", array($this, "socialsPageAssets"));
+    add_action("load-{$appearancePageHook}", array($this, "appearancePageAssets"));
+  }
+
+  function appearancePageAssets() {
+    wp_enqueue_style("appearancePageStyles", plugins_url("css/llpappearance.css", __FILE__));
   }
 
   function socialsPageAssets() {
@@ -103,6 +110,19 @@ class LinkList {
         <?php
           settings_fields("linkslistpluginsocials");
           do_settings_sections("linkslist-socials-page");
+          submit_button();
+        ?>
+      </form>
+    </div>
+  <?php }
+
+  function appearanceSettingsHTML() { ?>
+    <div>
+      <h1>Hello</h1>
+      <form action="options.php" method="POST">
+        <?php
+          settings_fields("linkslistappearance");
+          do_settings_sections("linkslist-appearance-page");
           submit_button();
         ?>
       </form>
@@ -155,7 +175,7 @@ class LinkList {
     
 
     // Social Icons options page
-    add_settings_section( "llp_socials_section", null, null, "linkslist-socials-page");
+    add_settings_section("llp_socials_section", null, null, "linkslist-socials-page");
 
     // Social Icons
     add_settings_field('llp_social_icons', "Social Icons", array($this, 'socialIconsHTML'), 'linkslist-socials-page', 'llp_socials_section');
@@ -165,7 +185,59 @@ class LinkList {
     register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitze_callback' => 'sanitize_text_field'));
     register_setting('linkslistpluginsocials', "llp_email_url", array('sanitze_callback' => 'sanitize_text_field'));
     register_setting('linkslistpluginsocials', "llp_website_url", array('sanitze_callback' => 'sanitize_text_field'));
+
+
+    // Appearance options page
+    add_settings_section('llp_appearance_section', null, null, "linkslist-appearance-page");
+
+    add_settings_field('llp_button_styles', "Choose style", array($this, 'appearanceHTML'), 'linkslist-appearance-page', 'llp_appearance_section');
+    register_setting('linkslistappearance', "llp_appearance");
   }
+
+  function appearanceHTML() {?>
+    <div class="appearance-wrapper">
+      <div class="llp-appearance">
+        <input type="radio" name="llp_appearance" id="" value="default" <?= get_option("llp_appearance") === "default" ? "checked" : "" ?>>
+        <div class="llp-preview">
+          <a href="#" class="default"></a>
+          <a href="#" class="default"></a>
+          <a href="#" class="default"></a>
+        </div>
+      </div>
+      <div class="llp-appearance">
+        <input type="radio" name="llp_appearance" id="" value="classy" <?= get_option("llp_appearance") === "classy" ? "checked" : "" ?>>
+        <div class="llp-preview">
+          <a href="#" class="classy"></a>
+          <a href="#" class="classy"></a>
+          <a href="#" class="classy"></a>
+        </div>
+      </div>
+      <div class="llp-appearance">
+        <input type="radio" name="llp_appearance" id="" value="retro"<?= get_option("llp_appearance") === "retro" ? "checked" : "" ?>>
+        <div class="llp-preview">
+          <a href="#" class="retro"></a>
+          <a href="#" class="retro"></a>
+          <a href="#" class="retro"></a>
+        </div>
+      </div>
+      <div class="llp-appearance">
+        <input type="radio" name="llp_appearance" id="" value="modern"<?= get_option("llp_appearance") === "modern" ? "checked" : "" ?>>
+        <div class="llp-preview">
+          <a href="#" class="modern"></a>
+          <a href="#" class="modern"></a>
+          <a href="#" class="modern"></a>
+        </div>
+      </div>
+      <div class="llp-appearance">
+        <input type="radio" name="llp_appearance" id="" value="bubbly"<?= get_option("llp_appearance") === "bubbly" ? "checked" : "" ?>>
+        <div class="llp-preview">
+          <a href="#" class="bubbly"></a>
+          <a href="#" class="bubbly"></a>
+          <a href="#" class="bubbly"></a>
+        </div>
+      </div>
+    </div>
+    <?php }
 
   function socialIconsHTML() {?>
     <div class="llp-inner-input-container">
@@ -314,7 +386,7 @@ class LinkList {
 
           foreach ($links as $key => $value) { 
             if (get_option($key) and get_option($value)) { ?>
-              <a href="<?= get_option($value) ?>"><?= get_option($key) ?></a>
+              <a href="<?= get_option($value) ?>" class=<?= get_option("llp_appearance") ?>><?= get_option($key) ?></a>
             <?php }
           }
         ?>
