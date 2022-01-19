@@ -268,6 +268,17 @@ class LinkList {
       <h3><?= get_option('llp_profile_title') ?></h3>
       <p><?= get_option('llp_description') ?></p>
 
+      <div class="llp-socials">
+        <?php
+          $socials = ["llp_facebook_url", "llp_twitter_url", "llp_instagram_url", "llp_codepen_url", "llp_email_url", "llp_website_url"];
+
+          foreach ($socials as $social) { ?>
+            <a href="<?= get_option($social) ?>"><?= explode("_", $social)[1] ?></a> 
+          <?php }
+        
+        ?>
+      </div>
+
       <a href="<?= get_option('llp_link_1_url') ?>"><?= get_option('llp_link_1_title') ?></a>
     </div>
   <?php }
