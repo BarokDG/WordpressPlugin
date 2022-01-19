@@ -47,6 +47,7 @@ class LinkList {
     add_action('template_include', array($this, 'linklist_template'));
     add_action('admin_menu', array($this, 'adminMenu'));
     add_action('admin_init', array($this, 'settings'));
+
     add_action('admin_enqueue_scripts', 'wp_enqueue_media' );
     add_action('admin_enqueue_scripts', array($this, 'media_library_script'));
   }
@@ -54,7 +55,7 @@ class LinkList {
   function media_library_script() {
     wp_enqueue_script("media-js", plugins_url("/js/media.js", __FILE__ ), array('jquery'), '', true);
   }
-
+  
   function linklist_template($template) {
     global $wp;
 
@@ -73,8 +74,15 @@ class LinkList {
 
   function adminMenu() {
     add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
+    $socialsPageHook = add_submenu_page( "linkslistsettings", "Links List Social Icons", "Social icons", "manage_options", "linkslistsocialiconsettings", array($this, 'socialSettingsHTML'));
+    add_action("load-{$socialsPageHook}", array($this, "socialsPageAssets"));
   }
-	
+
+  function socialsPageAssets() {
+    wp_enqueue_script("socials-js", plugins_url("/js/llpsocials.js", __FILE__ ), array(), '', true);
+    wp_enqueue_style("socialsPageStyles", plugins_url("css/llpsocials.css", __FILE__));
+  }
+
   function settingsHTML() { ?>
     <div class="wrap">
       <h1>Links list settings</h1>
@@ -82,6 +90,19 @@ class LinkList {
         <?php 
           settings_fields('linkslistplugin');
           do_settings_sections('linkslist-settings-page');
+          submit_button();
+        ?>
+      </form>
+    </div>
+  <?php }
+
+  function socialSettingsHTML() { ?>
+    <div class="wrap">
+      <h1>Social icons</h1>
+      <form action="options.php" method="POST">
+        <?php
+          settings_fields("linkslistpluginsocials");
+          do_settings_sections("linkslist-socials-page");
           submit_button();
         ?>
       </form>
@@ -103,24 +124,65 @@ class LinkList {
     add_settings_field('llp_background_image', 'Upload background image', array($this, 'background_imageHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting("linkslistplugin", "llp_background_image");
 
-    add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
-
-    add_settings_field( 'llp_link_1_title', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
-    register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
-
-    register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
-
+    // Announcements
     add_settings_field('llp_announcement', "Announcemnet", array($this, 'announcementHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting("linkslistplugin", "llp_announcement", array('sanitize_callback' => 'sanitize_text_field'));
-
     register_setting("linkslistplugin", "llp_show_announcement", array('sanitize_callback' => 'sanitize_text_field'));
+    
+    // Second section
+    add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
+
+    // First link
+    add_settings_field( 'llp_link_1_title', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
+    register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
+
+    // Social Icons options page
+    add_settings_section( "llp_socials_section", null, null, "linkslist-socials-page");
+
+    // Social Icons
+    add_settings_field('llp_social_icons', "Social Icons", array($this, 'socialIconsHTML'), 'linkslist-socials-page', 'llp_socials_section');
+    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitze_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitze_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitze_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitze_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_email_url", array('sanitze_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_website_url", array('sanitze_callback' => 'sanitize_text_field'));
   }
 
+  function socialIconsHTML() {?>
+    <div class="llp-inner-input-container">
+      <input type="text" name="llp_facebook_url" value=<?= get_option('llp_facebook_url') ?>>
+      <label for="llp_facebook_url">Facebook</label>
+    </div>
+    <div class="llp-inner-input-container">
+      <input type="text" name="llp_twitter_url" value=<?= get_option('llp_twitter_url') ?>>
+      <label for="llp_twitter_url">Twitter</label>
+    </div>
+    <div class="llp-inner-input-container">
+      <input type="text" name="llp_instagram_url" value=<?= get_option('llp_instagram_url') ?>>
+      <label for="llp_instagram_url">Instagram</label>
+    </div>
+    <div class="llp-inner-input-container">
+      <input type="text" name="llp_email_url" value=<?= get_option('llp_email_url') ?>>
+      <label for="llp_email_url">Email</label>
+    </div>
+    <div class="llp-inner-input-container">
+      <input type="text" name="llp_codepen_url"value=<?= get_option('llp_codepen_url') ?>>
+      <label for="llp_codepen_url">Codepen</label>
+    </div>
+    <div class="llp-inner-input-container">
+      <input type="text" name="llp_website_url" value=<?= get_option('llp_website_url') ?>>
+      <label for="llp_website_url">Website</label>
+    </div>
+  
+  <?php }
+
   function announcementHTML() { ?>
-    <textarea type="text" name="llp_announcement" id=""><?= esc_html(get_option( "llp_announcement")) ?></textarea>
+    <textarea type="text" name="llp_announcement" id=""><?= esc_html(get_option("llp_announcement")) ?></textarea>
 
     <label for="llp_show_announcemnet">Show banner</label>
-    <input type="checkbox" name="llp_show_announcement" id="" <?= get_option( "llp_show_announcement") ? "checked" : "" ?>>
+    <input type="checkbox" name="llp_show_announcement" id="" <?= get_option("llp_show_announcement") ? "checked" : "" ?>>
   <?php }
 
   function links_listHTML() { ?>

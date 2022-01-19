@@ -1,0 +1,28 @@
+.llp-inner-input-container {
+  position: relative;
+}
+
+label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+
+  transition: font-size 300ms;
+}
+
+input[type="text"] {
+  outline: none;
+  border-color: transparent !important;
+  border-bottom-color: black !important;
+  background: none !important;
+  border-bottom-width: 2px;
+
+  margin-bottom: 30px;
+}
+
+.filled label,
+input:focus ~ label {
+  top: -20px;
+  font-size: 12px;
+}
