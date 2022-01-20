@@ -109,7 +109,13 @@ class LinkList {
     </div>
   <?php }
 
-  function socialSettingsHTML() { ?>
+  function socialSettingsHTML() {
+    if (isset($_GET['settings-updated']) and empty(get_settings_errors('validation_messages'))) {
+      add_settings_error( "validation_messages", 'validation_message', 'Settings Saved', 'updated');
+    }
+
+    settings_errors('validation_messages'); ?>
+
     <div class="wrap">
       <h1>Social icons</h1>
       <form action="options.php" method="POST">
@@ -122,7 +128,13 @@ class LinkList {
     </div>
   <?php }
 
-  function appearanceSettingsHTML() { ?>
+  function appearanceSettingsHTML() {
+    if (isset($_GET['settings-updated']) and empty(get_settings_errors('validation_messages'))) {
+      add_settings_error( "validation_messages", 'validation_message', 'Settings Saved', 'updated');
+    }
+
+    settings_errors('validation_messages'); ?>
+
     <div>
       <h1>Hello</h1>
       <form action="options.php" method="POST">
@@ -144,7 +156,7 @@ class LinkList {
 
     // Proifle title
     add_settings_field('llp_profile_title', 'Profile title', array($this, 'profile_titleHTML'), 'linkslist-settings-page', 'llp_first_section');
-    register_setting( 'linkslistplugin', 'llp_profile_title', array('sanitize_callback' => array($this, 'sanitize_profile_title'), 'default' => 'John Cena'));
+    register_setting('linkslistplugin', 'llp_profile_title', array('sanitize_callback' => array($this, 'sanitize_profile_title'), 'default' => 'John Cena'));
     
     // Description
     add_settings_field('llp_description', 'Short description', array($this, 'descriptionHTML'), 'linkslist-settings-page', 'llp_first_section');
@@ -191,12 +203,12 @@ class LinkList {
 
     // Social Icons
     add_settings_field('llp_social_icons', "Social Icons", array($this, 'socialIconsHTML'), 'linkslist-socials-page', 'llp_socials_section');
-    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitze_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitze_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitze_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitze_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_email_url", array('sanitze_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_website_url", array('sanitze_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitize_callback' => array($this, 'sanitize_url')));
+    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitize_callback' => array($this, 'sanitize_url')));
+    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitize_callback' => array($this, 'sanitize_url')));
+    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitize_callback' => array($this, 'sanitize_url')));
+    register_setting('linkslistpluginsocials', "llp_email_url", array('sanitize_callback' => array($this, 'sanitize_email_field')));
+    register_setting('linkslistpluginsocials', "llp_website_url", array('sanitize_callback' => array($this, 'sanitize_url')));
 
 
     // Appearance options page
@@ -216,15 +228,53 @@ class LinkList {
     $db_data = get_option("llp_profile_title");
     $has_errors = false;
 
-    if (empty(esc_html($data))) {
+    if (empty($data)) {
       add_settings_error("validation_messages", "validation_message", "Profile title is required", "error");
+      $has_errors = true;
     }
 
     if ($has_errors) {
-      $data = $db_data;
+      return $db_data;
     }
 
-    return $data;
+    return strip_tags($data);
+  }
+
+  function sanitize_email_field($email) {
+    $db_data = get_option("llp_email_url");
+    $has_errors = false;
+    $pattern = "^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$";
+
+    if (!filter_var($email, FILTER_SANITIZE_EMAIL) and preg_match($pattern, $email)) {
+      add_settings_error("validation_messages", "validation_message", "Invalid format: Please check $email", "error");
+      $has_errors = true;
+    }
+
+    if ($has_errors) {
+      return $db_data;
+    }
+
+    return strtolower("mailto:$email");
+  }
+
+  function sanitize_url($url) {
+    $url = strtolower($url);
+    $has_errors = false;
+
+    $pattern = "www";
+
+    if (empty($url)) return;
+
+    if (!filter_var($url, FILTER_SANITIZE_URL) and preg_match($pattern, $url)) {
+      add_settings_error("validation_messages", "validation_message", "Invalid format: Please check $url.", "error");
+      $has_errors = true;
+    }
+
+    if ($has_errors) {
+      return '';
+    }
+
+    return strpos($url, "https://") === 0 ? $url : "https://$url";
   }
 
   /**
@@ -303,7 +353,7 @@ class LinkList {
       <label for="llp_instagram_url">Instagram</label>
     </div>
     <div class="llp-inner-input-container">
-      <input type="text" name="llp_email_url" value=<?= get_option('llp_email_url') ?>>
+      <input type="text" name="llp_email_url" value=<?= str_replace("mailto:", "", get_option('llp_email_url')) ?>>
       <label for="llp_email_url">Email</label>
     </div>
     <div class="llp-inner-input-container">
