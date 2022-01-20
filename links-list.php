@@ -498,7 +498,18 @@ class LinkList {
 
           foreach ($socials as $social) { 
             if (get_option($social)) { ?>
-              <a href="<?= get_option($social) ?? "" ?>"><?= explode("_", $social)[1] ?></a> 
+              <a href="<?= get_option($social) ?? "" ?>">
+              <?php 
+                $option_name = explode("_", $social)[1];
+                if (in_array($option_name, ["facebook", "twitter", "instagram"])) { ?>
+                  <i class="fab fa-<?= $option_name ?>-square"></i>
+                <?php } else if ($option_name === "codepen") { ?>
+                  <i class="fab fa-<?= $option_name ?>"></i>
+                <?php } else { ?>
+                  <i class="fas fa-<?= $option_name !== "website" ? "envelope" : "globe" ?>"></i>
+                <?php }
+              ?>
+              </a> 
             <?php }
           }
         
