@@ -90,7 +90,13 @@ class LinkList {
     wp_enqueue_style("socialsPageStyles", plugins_url("css/llpsocials.css", __FILE__));
   }
 
-  function settingsHTML() { ?>
+  function settingsHTML() { 
+    if (isset($_GET['settings-updated']) and empty(get_settings_errors('validation_messages'))) {
+      add_settings_error( "validation_messages", 'validation_message', 'Settings Saved', 'updated');
+    }
+
+    settings_errors('validation_messages'); ?>
+
     <div class="wrap">
       <h1>Links list settings</h1>
       <form action="options.php" method="POST">
@@ -138,11 +144,11 @@ class LinkList {
 
     // Proifle title
     add_settings_field('llp_profile_title', 'Profile title', array($this, 'profile_titleHTML'), 'linkslist-settings-page', 'llp_first_section');
-    register_setting( 'linkslistplugin', 'llp_profile_title', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'Profile Title'));
+    register_setting( 'linkslistplugin', 'llp_profile_title', array('sanitize_callback' => array($this, 'sanitize_profile_title'), 'default' => 'John Cena'));
     
     // Description
     add_settings_field('llp_description', 'Short description', array($this, 'descriptionHTML'), 'linkslist-settings-page', 'llp_first_section');
-    register_setting('linkslistplugin', 'llp_description', array('sanitize_callback' => 'sanitize_text_field', 'default' => 'You will see your bio/description here'));
+    register_setting('linkslistplugin', 'llp_description', array('sanitize_callback' => 'sanitize_text_field', "default" => "You can't see me!"));
 
     // Background Image
     add_settings_field('llp_background_image', 'Upload background image', array($this, 'background_imageHTML'), 'linkslist-settings-page', 'llp_first_section');
@@ -199,6 +205,33 @@ class LinkList {
     add_settings_field('llp_button_styles', "Choose style", array($this, 'appearanceHTML'), 'linkslist-appearance-page', 'llp_appearance_section');
     register_setting('linkslistappearance', "llp_appearance");
   }
+
+  /**
+   * 
+   * Validation callbacks
+   * 
+   */
+
+  function sanitize_profile_title($data) {
+    $db_data = get_option("llp_profile_title");
+    $has_errors = false;
+
+    if (empty(esc_html($data))) {
+      add_settings_error("validation_messages", "validation_message", "Profile title is required", "error");
+    }
+
+    if ($has_errors) {
+      $data = $db_data;
+    }
+
+    return $data;
+  }
+
+  /**
+   * 
+   * Settings fields display
+   * 
+   *  */ 
 
   function colorsHTML() { ?>
     <label for="llp_main_text_color">Text color</label>
