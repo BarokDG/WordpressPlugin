@@ -75,7 +75,7 @@ class LinkList {
   function adminMenu() {
     add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
     $socialsPageHook = add_submenu_page( "linkslistsettings", "Links List Social Icons", "Social icons", "manage_options", "linkslistsocialiconsettings", array($this, 'socialSettingsHTML'));
-    $appearancePageHook = add_submenu_page( "linkslistsettings", "Appearance", "Choose style", "manage_options", "linkslistappearancesettings", array($this, 'appearanceSettingsHTML'));
+    $appearancePageHook = add_submenu_page( "linkslistsettings", "Links List Appearance", "Appearance", "manage_options", "linkslistappearancesettings", array($this, 'appearanceSettingsHTML'), 1);
     
     add_action("load-{$socialsPageHook}", array($this, "socialsPageAssets"));
     add_action("load-{$appearancePageHook}", array($this, "appearancePageAssets"));
@@ -152,6 +152,12 @@ class LinkList {
     add_settings_field('llp_announcement', "Announcemnet", array($this, 'announcementHTML'), 'linkslist-settings-page', 'llp_first_section');
     register_setting("linkslistplugin", "llp_announcement", array('sanitize_callback' => 'sanitize_text_field'));
     register_setting("linkslistplugin", "llp_show_announcement", array('sanitize_callback' => 'sanitize_text_field'));
+
+    // Colors
+    add_settings_field('llp_brand_color', 'Brand Color', array($this, 'colorsHTML'), 'linkslist-settings-page', 'llp_first_section');
+    register_setting('linkslistplugin', 'llp_link_background_color');
+    register_setting('linkslistplugin', 'llp_link_text_color');
+    register_setting('linkslistplugin', 'llp_main_text_color');
     
     // Second section
     add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
@@ -194,7 +200,18 @@ class LinkList {
     register_setting('linkslistappearance', "llp_appearance");
   }
 
-  function appearanceHTML() {?>
+  function colorsHTML() { ?>
+    <label for="llp_main_text_color">Text color</label>
+    <input type="color" name="llp_main_text_color" value="<?= get_option("llp_main_text_color") ?>">
+    <br>
+    <label for="llp_link_background_color">Link background</label>
+    <input type="color" name="llp_link_background_color" value="<?= get_option("llp_link_background_color") ?>">
+    <br>
+    <label for="llp_link_text_color">Link text</label>
+    <input type="color" name="llp_link_text_color" value="<?= get_option("llp_link_text_color") ?>">
+  <?php }
+
+  function appearanceHTML() { ?>
     <div class="appearance-wrapper">
       <div class="llp-appearance">
         <input type="radio" name="llp_appearance" id="" value="default" <?= get_option("llp_appearance") === "default" ? "checked" : "" ?>>
@@ -364,7 +381,7 @@ class LinkList {
     $bg_src = $background_image[0] ?? '';
     
     ?>
-    <div class="linkslist-main" style="background-image: url(' . $bg_src . ')">
+    <div class="linkslist-main" style="background-image: url(' . $bg_src . '); color: <?= get_option("llp_main_text_color") ?>">
       <div class="linkslist-banner"><?php
         if (get_option( "llp_show_announcement")) {
           echo  get_option("llp_announcement"); 
@@ -386,7 +403,7 @@ class LinkList {
 
           foreach ($links as $key => $value) { 
             if (get_option($key) and get_option($value)) { ?>
-              <a href="<?= get_option($value) ?>" class=<?= get_option("llp_appearance") ?>><?= get_option($key) ?></a>
+              <a href="<?= get_option($value) ?>" class=<?= get_option("llp_appearance") ?> style="background-color: <?= get_option("llp_link_background_color") ?>; color: <?= get_option("llp_link_text_color") ?>"><?= get_option($key) ?></a>
             <?php }
           }
         ?>

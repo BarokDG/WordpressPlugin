@@ -26,7 +26,8 @@
   justify-content: center;
 }
 
-.llp-preview a {
+.llp-preview a,
+.llp-links a {
   display: block;
   text-decoration: none;
   color: black;
