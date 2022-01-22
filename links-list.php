@@ -398,54 +398,51 @@ class LinkList {
 
   function background_imageHTML() {
     $options = get_option('llp_background_image');
-    $default_image = '';
- 
-    if (!empty($options)) {
-        $image_attributes = wp_get_attachment_image_src($options, 'full');
-        $src = $image_attributes[0];
-        $value = $options;
-    } else {
-        $src = $default_image;
-        $value = '';
-    }
- 
-    echo '
-        <div class="upload" style="max-width:150px;">
-            <img data-src="' . $default_image . '" src="' . $src . '" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" />
-            <div>
-                <input type="hidden" name="llp_background_image" id="llp_background_image" value="' . $value . '" />
-                <button type="submit" class="upload_image_button button">' . __('Upload', 'igsosd') . '</button>
-                <button type="submit" class="remove_image_button button">Delete</button>
-            </div>
-        </div>
-    ';
+    $default_image = plugins_url("/assets/default_background_image.png", __FILE__);
 
-  }
+    if (!empty($options)) {
+      $image_attributes = wp_get_attachment_image_src($options, 'full');
+      $src = $image_attributes[0] ?? $default_image;
+      $value = $options;
+    } else {
+      $src = $default_image;
+      $value = '';
+    } ?>
+
+    <div class="upload" style="max-width: 150px;">
+      <img data-src=<?= $default_image ?> src=<?= $src ?> style="height: 100px; object-fit: cover;" />
+      <div>
+        <input type="hidden" name="llp_background_image" id="llp_background_image" value="' . $value . '" />
+        <button type="submit" class="upload_image_button button">Upload</button>
+        <button type="submit" class="remove_image_button button">Delete</button>
+      </div>
+    </div>
+
+  <?php }
 
   function profile_picHTML() { 
     $options = get_option('llp_profile_picture');
-    $default_image = '';
+    $default_image = plugins_url("/assets/default_profile_picture.png", __FILE__);
  
     if (!empty($options)) {
-        $image_attributes = wp_get_attachment_image_src($options, 'full');
-        $src = $image_attributes[0];
-        $value = $options;
+      $image_attributes = wp_get_attachment_image_src($options, 'full');
+      $src = $image_attributes[0] ?? $default_image;
+      $value = $options;
     } else {
-        $src = $default_image;
-        $value = '';
-    }
- 
-    echo '
-        <div class="upload" style="max-width:150px;">
-            <img data-src="' . $default_image . '" src="' . $src . '" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" />
-            <div>
-                <input type="hidden" name="llp_profile_picture" id="llp_profile_picture" value="' . $value . '" />
-                <button type="submit" class="upload_image_button button">' . __('Upload', 'igsosd') . '</button>
-                <button type="submit" class="remove_image_button button">Delete</button>
-            </div>
-        </div>
-    ';
-  }
+      $src = $default_image;
+      $value = '';
+    } ?>
+
+    <div class="upload" style="max-width:150px;">
+      <img data-src=<?= $default_image ?> src=<?= $src ?> style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" />
+      <div>
+        <input type="hidden" name="llp_profile_picture" id="llp_profile_picture" value=<?= $value ?>/>
+        <button type="submit" class="upload_image_button button">Upload</button>
+        <button type="submit" class="remove_image_button button">Delete</button>
+      </div>
+    </div>
+
+  <?php }
 
   function profile_titleHTML() { ?>
     <input type="text" name="llp_profile_title" value="<?= esc_attr(get_option('llp_profile_title')) ?>">
@@ -471,7 +468,7 @@ class LinkList {
         }
       ?></div>
       <img src="<?= $src ?>" alt="" />
-      <h3><?= get_option('llp_profile_title') ?></h3>
+      <h1><?= get_option('llp_profile_title') ?></h1>
       <p><?= get_option('llp_description') ?></p>
 
       <div class="llp-links">
@@ -502,11 +499,11 @@ class LinkList {
               <?php 
                 $option_name = explode("_", $social)[1];
                 if (in_array($option_name, ["facebook", "twitter", "instagram"])) { ?>
-                  <i class="fab fa-<?= $option_name ?>-square"></i>
+                  <i class="fab fa-<?= $option_name ?>-square fa-2x"></i>
                 <?php } else if ($option_name === "codepen") { ?>
-                  <i class="fab fa-<?= $option_name ?>"></i>
+                  <i class="fab fa-<?= $option_name ?> fa-2x"></i>
                 <?php } else { ?>
-                  <i class="fas fa-<?= $option_name !== "website" ? "envelope" : "globe" ?>"></i>
+                  <i class="fas fa-<?= $option_name !== "website" ? "envelope" : "globe" ?> fa-2x"></i>
                 <?php }
               ?>
               </a> 

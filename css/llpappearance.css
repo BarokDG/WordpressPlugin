@@ -42,7 +42,7 @@
 
 .default:hover {
   background: none;
-  border: 2px solid;
+  outline: 2px solid;
 }
 
 .classy {
