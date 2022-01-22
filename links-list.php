@@ -49,11 +49,12 @@ class LinkList {
     add_action('admin_init', array($this, 'settings'));
 
     add_action('admin_enqueue_scripts', 'wp_enqueue_media' );
-    add_action('admin_enqueue_scripts', array($this, 'media_library_script'));
+    add_action('admin_enqueue_scripts', array($this, 'load_admin_assets'));    
   }
   
-  function media_library_script() {
+  function load_admin_assets() {
     wp_enqueue_script("media-js", plugins_url("/js/media.js", __FILE__ ), array('jquery'), '', true);
+    wp_enqueue_style("admin-css", plugins_url("/css/admin-styles.css", __FILE__));
   }
   
   function linklist_template($template) {
@@ -136,7 +137,6 @@ class LinkList {
     settings_errors('validation_messages'); ?>
 
     <div>
-      <h1>Hello</h1>
       <form action="options.php" method="POST">
         <?php
           settings_fields("linkslistappearance");
@@ -180,22 +180,24 @@ class LinkList {
     // Second section
     add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
 
-    // Links
-    add_settings_field('llp_links', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
-    register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
+    // // Links
+    // add_settings_field('llp_links', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
+    // register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
     
-    register_setting('linkslistplugin', 'llp_link_2_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistplugin', 'llp_link_2_url', array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_2_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_2_url', array('sanitize_callback' => 'sanitize_text_field'));
     
-    register_setting('linkslistplugin', 'llp_link_3_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistplugin', 'llp_link_3_url', array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_3_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_3_url', array('sanitize_callback' => 'sanitize_text_field'));
     
-    register_setting('linkslistplugin', 'llp_link_4_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistplugin', 'llp_link_4_url', array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_4_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_4_url', array('sanitize_callback' => 'sanitize_text_field'));
     
-    register_setting('linkslistplugin', 'llp_link_5_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistplugin', 'llp_link_5_url', array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_5_title',  array('sanitize_callback' => 'sanitize_text_field'));
+    // register_setting('linkslistplugin', 'llp_link_5_url', array('sanitize_callback' => 'sanitize_text_field'));
+
+    
     
 
     // Social Icons options page
@@ -367,12 +369,22 @@ class LinkList {
   <?php }
 
   function announcementHTML() { ?>
-    <textarea type="text" name="llp_announcement" id=""><?= esc_html(get_option("llp_announcement")) ?></textarea>
+    <div class="announcement-controls">
+      <textarea type="text" name="llp_announcement" id=""><?= esc_html(get_option("llp_announcement")) ?></textarea>
+      
+      <div class="announcement-flex">
+        <div class="switch-container">
+          <input type="checkbox" name="llp_show_announcement" id="" <?= get_option("llp_show_announcement") ? "checked" : "" ?>>
+          <div class="switch"></div>
+        </div>
+        
+        <label for="llp_show_announcemnet">Show banner</label>
+      </div>
 
-    <label for="llp_show_announcemnet">Show banner</label>
-    <input type="checkbox" name="llp_show_announcement" id="" <?= get_option("llp_show_announcement") ? "checked" : "" ?>>
+    </div>
   <?php }
 
+  /*
   function links_listHTML() { ?>
     <div class="group-one">
       <input type="text" name="llp_link_1_title" value="<?= esc_attr(get_option('llp_link_1_title')) ?>">
@@ -394,7 +406,7 @@ class LinkList {
       <input type="text" name="llp_link_5_title" value="<?= esc_attr(get_option('llp_link_5_title')) ?>">
       <input type="text" name="llp_link_5_url" value="<?= esc_attr(esc_url(get_option('llp_link_5_url'))) ?>">
     </div>
-  <?php }
+  <?php } */
 
   function background_imageHTML() {
     $options = get_option('llp_background_image');
@@ -409,8 +421,8 @@ class LinkList {
       $value = '';
     } ?>
 
-    <div class="upload" style="max-width: 150px;">
-      <img data-src=<?= $default_image ?> src=<?= $src ?> style="height: 100px; object-fit: cover;" />
+    <div class="upload" style="max-width: 300px;">
+      <img data-src=<?= $default_image ?> src=<?= $src ?> style="display: block; max-width: 100%; object-fit: cover;" />
       <div>
         <input type="hidden" name="llp_background_image" id="llp_background_image" value="' . $value . '" />
         <button type="submit" class="upload_image_button button">Upload</button>
@@ -455,7 +467,7 @@ class LinkList {
   public static function Output() {
 
     $image_attributes = wp_get_attachment_image_src(get_option('llp_profile_picture'), 'full');
-    $src = $image_attributes[0] ?? '';
+    $src = $image_attributes[0] ?? plugins_url("/assets/default_profile_picture.png", __FILE__);
 
     $background_image = wp_get_attachment_image_src(get_option('llp_background_image'), 'full');
     $bg_src = $background_image[0] ?? '';
