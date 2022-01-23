@@ -54,7 +54,6 @@ class LinkList {
   
   function load_admin_assets() {
     wp_enqueue_script("media-js", plugins_url("/js/media.js", __FILE__ ), array('jquery'), '', true);
-    wp_enqueue_script("links-js", plugins_url("/js/dynamicLinks.js", __FILE__ ), array('jquery'), '', true);
     wp_enqueue_style("admin-css", plugins_url("/css/admin-styles.css", __FILE__));
   }
   
@@ -75,12 +74,27 @@ class LinkList {
   }
 
   function adminMenu() {
-    add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
+    $mainSettingsHook = add_menu_page('Links List Settings', 'Links List', 'manage_options', 'linkslistsettings', array($this, 'settingsHTML'), 'dashicons-admin-links');
     $socialsPageHook = add_submenu_page( "linkslistsettings", "Links List Social Icons", "Social icons", "manage_options", "linkslistsocialiconsettings", array($this, 'socialSettingsHTML'));
     $appearancePageHook = add_submenu_page( "linkslistsettings", "Links List Appearance", "Appearance", "manage_options", "linkslistappearancesettings", array($this, 'appearanceSettingsHTML'), 1);
     
+    add_action("load-{$mainSettingsHook}", array($this, "mainSettingsAssets"));
     add_action("load-{$socialsPageHook}", array($this, "socialsPageAssets"));
     add_action("load-{$appearancePageHook}", array($this, "appearancePageAssets"));
+  }
+
+  function mainSettingsAssets() {
+    wp_enqueue_script("links-js", plugins_url("/js/dynamicLinks.js", __FILE__ ), array('jquery'), '', true);
+    wp_localize_script('links-js', 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')), array('we_value' => 1000005));
+    
+    add_action("wp_ajax_do_something", 'do_something');
+  }
+
+  function do_something() {
+    global $wpdb;
+
+    $wpdb->insert('wp_options', array("llp_name" => "Barok"));
+    wp_die();
   }
 
   function appearancePageAssets() {
@@ -200,7 +214,7 @@ class LinkList {
     
     // Links V2
     add_settings_field('llp_links', "Link Title", array($this, 'links_listV2HTML'), 'linkslist-settings-page', 'llp_second_section');    
-    register_setting('linkslistplugin', "llp_added_links");
+    register_setting('linkslistplugin', "llp_added_links", array("sanitize_callback" => array($this, 'serialize_data')));
 
     // Social Icons options page
     add_settings_section("llp_socials_section", null, null, "linkslist-socials-page");
@@ -227,6 +241,20 @@ class LinkList {
    * Validation callbacks
    * 
    */
+
+  function serialize_data($data) {
+    if (empty($data) or $data === "=>") {
+      return '';
+    }
+
+    $lines = explode("=>", $data);
+    $keys = explode(',', $lines[0]);
+    $vals = explode(',', $lines[1]);
+
+    $result = array_combine($keys, $vals);
+    
+    return serialize($result);
+  }
 
   function sanitize_profile_title($data) {
     $db_data = get_option("llp_profile_title");
@@ -411,14 +439,15 @@ class LinkList {
   <?php } */
 
   function links_listV2HTML() { ?>
-    <button id="addScnt">Add Another Input Box</button>
+    <button id="addLink">Add another Link</button>
     <button id="save">Save</button>
 
-    <div id="p_scents">
+    <div id="llp-links-list">
       <input type="hidden" name="llp_added_links" value="">
-      <div>
-        <label for="p_scnts">Title 1</label>
-        <input type="text" id="p_scnt" class="only" size="20" name="p_scnt" value="" placeholder="Input Value" />
+      <div id="link1">
+        <label for="link1">Link 1</label>
+        <input type="text" id="link_1_title" size="20" name="link_1_title" value="" placeholder="Link title" />
+        <input type="url" id="link_1_url" size="20" name="link_1_url" value="" placeholder="https://" />
       </div>
     </div>
   <?php }
@@ -537,6 +566,15 @@ class LinkList {
             <?php }
           }
         
+        ?>
+      </div>
+
+      <div class="test">
+        <?php
+          $result = get_option("llp_added_links");
+          if ($result) {
+            print_r(unserialize($result));
+          }
         ?>
       </div>
     </div>

@@ -14,6 +14,7 @@ jQuery(".upload_image_button").click(function () {
 
 jQuery(".remove_image_button").click(function (event) {
   event.preventDefault();
+
   var answer = confirm("Are you sure?");
 
   if (answer == true) {
