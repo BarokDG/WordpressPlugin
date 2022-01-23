@@ -54,6 +54,7 @@ class LinkList {
   
   function load_admin_assets() {
     wp_enqueue_script("media-js", plugins_url("/js/media.js", __FILE__ ), array('jquery'), '', true);
+    wp_enqueue_script("links-js", plugins_url("/js/dynamicLinks.js", __FILE__ ), array('jquery'), '', true);
     wp_enqueue_style("admin-css", plugins_url("/css/admin-styles.css", __FILE__));
   }
   
@@ -179,7 +180,7 @@ class LinkList {
     
     // Second section
     add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
-
+    
     // // Links
     // add_settings_field('llp_links', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
     // register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
@@ -196,9 +197,10 @@ class LinkList {
     
     // register_setting('linkslistplugin', 'llp_link_5_title',  array('sanitize_callback' => 'sanitize_text_field'));
     // register_setting('linkslistplugin', 'llp_link_5_url', array('sanitize_callback' => 'sanitize_text_field'));
-
     
-    
+    // Links V2
+    add_settings_field('llp_links', "Link Title", array($this, 'links_listV2HTML'), 'linkslist-settings-page', 'llp_second_section');    
+    register_setting('linkslistplugin', "llp_added_links");
 
     // Social Icons options page
     add_settings_section("llp_socials_section", null, null, "linkslist-socials-page");
@@ -408,6 +410,19 @@ class LinkList {
     </div>
   <?php } */
 
+  function links_listV2HTML() { ?>
+    <button id="addScnt">Add Another Input Box</button>
+    <button id="save">Save</button>
+
+    <div id="p_scents">
+      <input type="hidden" name="llp_added_links" value="">
+      <div>
+        <label for="p_scnts">Title 1</label>
+        <input type="text" id="p_scnt" class="only" size="20" name="p_scnt" value="" placeholder="Input Value" />
+      </div>
+    </div>
+  <?php }
+
   function background_imageHTML() {
     $options = get_option('llp_background_image');
     $default_image = plugins_url("/assets/default_background_image.png", __FILE__);
@@ -473,7 +488,7 @@ class LinkList {
     $bg_src = $background_image[0] ?? '';
     
     ?>
-    <div class="linkslist-main" style="background-image: url(' . $bg_src . '); color: <?= get_option("llp_main_text_color") ?>">
+    <div class="linkslist-main" style="background-image: url(<?= $bg_src ?>); color: <?= get_option("llp_main_text_color") ?>">
       <div class="linkslist-banner"><?php
         if (get_option( "llp_show_announcement")) {
           echo  get_option("llp_announcement"); 
