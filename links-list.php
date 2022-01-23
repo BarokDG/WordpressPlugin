@@ -326,77 +326,35 @@ class LinkList {
     <input type="color" name="llp_link_text_color" value="<?= get_option("llp_link_text_color") ?>">
   <?php }
 
-  function appearanceHTML() { ?>
+  function appearanceHTML() {
+    $options = ["default", "classy", "retro", "modern", "bubbly"];
+    ?>
     <div class="appearance-wrapper">
-      <div class="llp-appearance">
-        <input type="radio" name="llp_appearance" id="" value="default" <?= get_option("llp_appearance") === "default" ? "checked" : "" ?>>
-        <div class="llp-preview">
-          <a href="#" class="default"></a>
-          <a href="#" class="default"></a>
-          <a href="#" class="default"></a>
-        </div>
-      </div>
-      <div class="llp-appearance">
-        <input type="radio" name="llp_appearance" id="" value="classy" <?= get_option("llp_appearance") === "classy" ? "checked" : "" ?>>
-        <div class="llp-preview">
-          <a href="#" class="classy"></a>
-          <a href="#" class="classy"></a>
-          <a href="#" class="classy"></a>
-        </div>
-      </div>
-      <div class="llp-appearance">
-        <input type="radio" name="llp_appearance" id="" value="retro"<?= get_option("llp_appearance") === "retro" ? "checked" : "" ?>>
-        <div class="llp-preview">
-          <a href="#" class="retro"></a>
-          <a href="#" class="retro"></a>
-          <a href="#" class="retro"></a>
-        </div>
-      </div>
-      <div class="llp-appearance">
-        <input type="radio" name="llp_appearance" id="" value="modern"<?= get_option("llp_appearance") === "modern" ? "checked" : "" ?>>
-        <div class="llp-preview">
-          <a href="#" class="modern"></a>
-          <a href="#" class="modern"></a>
-          <a href="#" class="modern"></a>
-        </div>
-      </div>
-      <div class="llp-appearance">
-        <input type="radio" name="llp_appearance" id="" value="bubbly"<?= get_option("llp_appearance") === "bubbly" ? "checked" : "" ?>>
-        <div class="llp-preview">
-          <a href="#" class="bubbly"></a>
-          <a href="#" class="bubbly"></a>
-          <a href="#" class="bubbly"></a>
-        </div>
-      </div>
+      <?php 
+        foreach ($options as $option) {?>
+          <div class="llp-appearance">
+            <input type="radio" name="llp_appearance" id="" value="<?= $option ?>" <?= get_option("llp_appearance") === $option ? "checked" : "" ?>>
+            <div class="llp-preview">
+              <?= str_repeat(
+                "<a href='#' class=$option></a>", 3
+              )?>
+            </div>
+          </div>
+        <?php }
+      ?>    
     </div>
     <?php }
 
-  function socialIconsHTML() {?>
-    <div class="llp-inner-input-container">
-      <input type="text" name="llp_facebook_url" value=<?= get_option('llp_facebook_url') ?>>
-      <label for="llp_facebook_url">Facebook</label>
-    </div>
-    <div class="llp-inner-input-container">
-      <input type="text" name="llp_twitter_url" value=<?= get_option('llp_twitter_url') ?>>
-      <label for="llp_twitter_url">Twitter</label>
-    </div>
-    <div class="llp-inner-input-container">
-      <input type="text" name="llp_instagram_url" value=<?= get_option('llp_instagram_url') ?>>
-      <label for="llp_instagram_url">Instagram</label>
-    </div>
-    <div class="llp-inner-input-container">
-      <input type="text" name="llp_email_url" value=<?= str_replace("mailto:", "", get_option('llp_email_url')) ?>>
-      <label for="llp_email_url">Email</label>
-    </div>
-    <div class="llp-inner-input-container">
-      <input type="text" name="llp_codepen_url"value=<?= get_option('llp_codepen_url') ?>>
-      <label for="llp_codepen_url">Codepen</label>
-    </div>
-    <div class="llp-inner-input-container">
-      <input type="text" name="llp_website_url" value=<?= get_option('llp_website_url') ?>>
-      <label for="llp_website_url">Website</label>
-    </div>
-  <?php }
+  function socialIconsHTML() {
+    $options = ["Facebook", "Twitter", "Instagram", "Email", "Codepen", "Website"];
+
+    foreach ($options as $option) { ?>
+      <div class="llp-inner-input-container">
+        <input type="text" name="llp_<?= $option ?>_url" value=<?= $option !== "Email" ? get_option("llp_{$option}_url") : str_replace("mailto:", "", get_option("llp_${option}_url")) ?>>
+        <label for="llp_<?= $option ?>_url"><?= $option ?></label>
+      </div>
+    <?php }
+  }
 
   function announcementHTML() { ?>
     <div class="announcement-controls">
@@ -414,41 +372,30 @@ class LinkList {
     </div>
   <?php }
 
-  /*
-  function links_listHTML() { ?>
-    <div class="group-one">
-      <input type="text" name="llp_link_1_title" value="<?= esc_attr(get_option('llp_link_1_title')) ?>">
-      <input type="text" name="llp_link_1_url" value="<?= esc_attr(esc_url(get_option('llp_link_1_url'))) ?>">
-    </div>
-    <div class="group-one">
-      <input type="text" name="llp_link_2_title" value="<?= esc_attr(get_option('llp_link_2_title')) ?>">
-      <input type="text" name="llp_link_2_url" value="<?= esc_attr(esc_url(get_option('llp_link_2_url'))) ?>">
-    </div>
-    <div class="group-one">
-      <input type="text" name="llp_link_3_title" value="<?= esc_attr(get_option('llp_link_3_title')) ?>">
-      <input type="text" name="llp_link_3_url" value="<?= esc_attr(esc_url(get_option('llp_link_3_url'))) ?>">
-    </div>
-    <div class="group-one">
-      <input type="text" name="llp_link_4_title" value="<?= esc_attr(get_option('llp_link_4_title')) ?>">
-      <input type="text" name="llp_link_4_url" value="<?= esc_attr(esc_url(get_option('llp_link_4_url'))) ?>">
-    </div>
-    <div class="group-one">
-      <input type="text" name="llp_link_5_title" value="<?= esc_attr(get_option('llp_link_5_title')) ?>">
-      <input type="text" name="llp_link_5_url" value="<?= esc_attr(esc_url(get_option('llp_link_5_url'))) ?>">
-    </div>
-  <?php } */
-
   function links_listV2HTML() { ?>
     <button id="addLink">Add another Link</button>
     <button id="save">Save</button>
 
     <div id="llp-links-list">
       <input type="hidden" name="llp_added_links" value="">
-      <div id="link1">
-        <label for="link1">Link 1</label>
-        <input type="text" id="link_1_title" size="20" name="link_1_title" value="" placeholder="Link title" />
-        <input type="url" id="link_1_url" size="20" name="link_1_url" value="" placeholder="https://" />
-      </div>
+      <?php 
+        $result = get_option("llp_added_links");
+        if ($result) { 
+          $linksArr = unserialize($result);
+          $index = 1;    
+          
+          foreach ($linksArr as $title => $link) {?>           
+            <div id="link<?= $index ?>">
+              <label for="link<?= $index ?>">Link <?= $index ?></label>
+              <input type="text" id="link_<?= $index ?>_title" size="20" name="link_<?= $index ?>_title" value="<?= $title ?>" placeholder="Link title" />
+              <input type="url" id="link_<?= $index ?>_url" size="20" name="link_<?= $index ?>_url" value="<?= $link ?>" placeholder="https://" />
+            </div>
+
+            <?php $index++;
+          }
+        }
+      ?>
+
     </div>
   <?php }
 
@@ -529,17 +476,12 @@ class LinkList {
 
       <div class="llp-links">
         <?php 
-          $links = [
-            "llp_link_1_title" => "llp_link_1_url", 
-            "llp_link_2_title" => "llp_link_2_url", 
-            "llp_link_3_title" => "llp_link_3_url",
-            "llp_link_4_title" => "llp_link_4_url",
-            "llp_link_5_title" => "llp_link_5_url",
-          ];
-
-          foreach ($links as $key => $value) { 
-            if (get_option($key) and get_option($value)) { ?>
-              <a href="<?= get_option($value) ?>" class=<?= get_option("llp_appearance") ?> style="background-color: <?= get_option("llp_link_background_color") ?>; color: <?= get_option("llp_link_text_color") ?>"><?= get_option($key) ?></a>
+          $result = get_option("llp_added_links");
+          if ($result) { 
+            $linksArr = unserialize($result);
+            
+            foreach ($linksArr as $title => $link) { ?>           
+              <a href="<?= $link ?>" class=<?= get_option("llp_appearance") ?> style="background-color: <?= get_option("llp_link_background_color") ?>; color: <?= get_option("llp_link_text_color") ?>"><?= $title ?></a>
             <?php }
           }
         ?>
@@ -568,16 +510,6 @@ class LinkList {
         
         ?>
       </div>
-
-      <div class="test">
-        <?php
-          $result = get_option("llp_added_links");
-          if ($result) {
-            print_r(unserialize($result));
-          }
-        ?>
-      </div>
-    </div>
   <?php }
 }
 
