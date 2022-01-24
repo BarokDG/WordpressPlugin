@@ -115,7 +115,7 @@ class LinkList {
 
     <div class="wrap">
       <h1>Links list settings</h1>
-      <form action="options.php" method="POST">
+      <form id="main-form" action="options.php" method="POST">
         <?php 
           settings_fields('linkslistplugin');
           do_settings_sections('linkslist-settings-page');
@@ -151,7 +151,7 @@ class LinkList {
 
     settings_errors('validation_messages'); ?>
 
-    <div>
+    <div class="wrap">
       <form action="options.php" method="POST">
         <?php
           settings_fields("linkslistappearance");
@@ -195,23 +195,6 @@ class LinkList {
     // Second section
     add_settings_section( 'llp_second_section', null, null, 'linkslist-settings-page');
     
-    // // Links
-    // add_settings_field('llp_links', "Link Title", array($this, 'links_listHTML'), 'linkslist-settings-page', 'llp_second_section');
-    // register_setting('linkslistplugin', 'llp_link_1_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    // register_setting('linkslistplugin', 'llp_link_1_url', array('sanitize_callback' => 'sanitize_text_field'));
-    
-    // register_setting('linkslistplugin', 'llp_link_2_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    // register_setting('linkslistplugin', 'llp_link_2_url', array('sanitize_callback' => 'sanitize_text_field'));
-    
-    // register_setting('linkslistplugin', 'llp_link_3_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    // register_setting('linkslistplugin', 'llp_link_3_url', array('sanitize_callback' => 'sanitize_text_field'));
-    
-    // register_setting('linkslistplugin', 'llp_link_4_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    // register_setting('linkslistplugin', 'llp_link_4_url', array('sanitize_callback' => 'sanitize_text_field'));
-    
-    // register_setting('linkslistplugin', 'llp_link_5_title',  array('sanitize_callback' => 'sanitize_text_field'));
-    // register_setting('linkslistplugin', 'llp_link_5_url', array('sanitize_callback' => 'sanitize_text_field'));
-    
     // Links V2
     add_settings_field('llp_links', "Link Title", array($this, 'links_listV2HTML'), 'linkslist-settings-page', 'llp_second_section');    
     register_setting('linkslistplugin', "llp_added_links", array("sanitize_callback" => array($this, 'serialize_data')));
@@ -221,10 +204,10 @@ class LinkList {
 
     // Social Icons
     add_settings_field('llp_social_icons', "Social Icons", array($this, 'socialIconsHTML'), 'linkslist-socials-page', 'llp_socials_section');
-    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitize_callback' => array($this, 'sanitize_url')));
-    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitize_callback' => array($this, 'sanitize_url')));
-    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitize_callback' => array($this, 'sanitize_url')));
-    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitize_callback' => array($this, 'sanitize_url')));
+    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitize_callback' => 'sanitize_text_field'));
     register_setting('linkslistpluginsocials', "llp_email_url", array('sanitize_callback' => array($this, 'sanitize_email_field')));
     register_setting('linkslistpluginsocials', "llp_website_url", array('sanitize_callback' => array($this, 'sanitize_url')));
 
@@ -274,39 +257,28 @@ class LinkList {
 
   function sanitize_email_field($email) {
     $db_data = get_option("llp_email_url");
-    $has_errors = false;
-    $pattern = "^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$";
+    $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
 
-    if (!filter_var($email, FILTER_SANITIZE_EMAIL) and preg_match($pattern, $email)) {
+    if (filter_var($email, FILTER_SANITIZE_EMAIL) and preg_match($pattern, $email)) {
+      return strpos($email, "mailto:") === 0 ? $email : strtolower("mailto:$email");
+    } else {
       add_settings_error("validation_messages", "validation_message", "Invalid format: Please check $email", "error");
-      $has_errors = true;
-    }
-
-    if ($has_errors) {
       return $db_data;
     }
-
-    return strtolower("mailto:$email");
   }
 
   function sanitize_url($url) {
     $url = strtolower($url);
-    $has_errors = false;
-
-    $pattern = "www";
+    $pattern = "/\b(?:(?:https?):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i";
 
     if (empty($url)) return;
 
-    if (!filter_var($url, FILTER_SANITIZE_URL) and preg_match($pattern, $url)) {
+    if (filter_var($url, FILTER_SANITIZE_URL) and preg_match($pattern, $url)) {
+      return (strpos($url, "https://") === 0 or strpos($url, "http://")) ? $url : "https://$url";
+    } else {
       add_settings_error("validation_messages", "validation_message", "Invalid format: Please check $url.", "error");
-      $has_errors = true;
-    }
-
-    if ($has_errors) {
       return '';
     }
-
-    return strpos($url, "https://") === 0 ? $url : "https://$url";
   }
 
   /**
@@ -316,14 +288,20 @@ class LinkList {
    *  */ 
 
   function colorsHTML() { ?>
-    <label for="llp_main_text_color">Text color</label>
-    <input type="color" name="llp_main_text_color" value="<?= get_option("llp_main_text_color") ?>">
-    <br>
-    <label for="llp_link_background_color">Link background</label>
-    <input type="color" name="llp_link_background_color" value="<?= get_option("llp_link_background_color") ?>">
-    <br>
-    <label for="llp_link_text_color">Link text</label>
-    <input type="color" name="llp_link_text_color" value="<?= get_option("llp_link_text_color") ?>">
+    <div class="llp-color-option">
+      <label for="llp_main_text_color">Text color</label>
+      <input type="color" name="llp_main_text_color" value="<?= get_option("llp_main_text_color") ?>">
+    </div>
+
+    <div class="llp-color-option">
+      <label for="llp_link_background_color">Link background</label>
+      <input type="color" name="llp_link_background_color" value="<?= get_option("llp_link_background_color") ?>">
+    </div>
+
+    <div class="llp-color-option">
+      <label for="llp_link_text_color">Link text</label>
+      <input type="color" name="llp_link_text_color" value="<?= get_option("llp_link_text_color") ?>">
+    </div>
   <?php }
 
   function appearanceHTML() {
@@ -338,6 +316,8 @@ class LinkList {
               <?= str_repeat(
                 "<a href='#' class=$option></a>", 3
               )?>
+
+              <a href="#" class="<?= $option ?> <?= $option ?>-hover"></a>
             </div>
           </div>
         <?php }
@@ -346,12 +326,23 @@ class LinkList {
     <?php }
 
   function socialIconsHTML() {
-    $options = ["Facebook", "Twitter", "Instagram", "Email", "Codepen", "Website"];
+    $options = ["facebook", "twitter", "instagram", "email", "codepen", "website"];
 
     foreach ($options as $option) { ?>
       <div class="llp-inner-input-container">
-        <input type="text" name="llp_<?= $option ?>_url" value=<?= $option !== "Email" ? get_option("llp_{$option}_url") : str_replace("mailto:", "", get_option("llp_${option}_url")) ?>>
-        <label for="llp_<?= $option ?>_url"><?= $option ?></label>
+        <?php if (in_array($option, ["website", "email"])) { ?>
+          <label for="llp_<?= $option ?>_url"><?= ucFirst($option) ?></label>
+        <?php } else if ($option === "codepen") {?> 
+          <label for="llp_<?= $option ?>_url"><?="$option.io/" ?></label>
+        <?php } else {?> 
+          <label for="llp_<?= $option ?>_url"><?="$option.com/" ?></label>
+        <?php } ?>
+
+        <input type="text" name="llp_<?= $option ?>_url"
+          placeholder="<?= (in_array($option, ["website", "email"])) ? ($option === "email" ? "example@email.com" : "www.example.com") : "username" ?>"
+          value='<?= $option !== "email" ? get_option("llp_{$option}_url") : str_replace("mailto:", "", get_option("llp_${option}_url"))
+        ?>'>
+
       </div>
     <?php }
   }
@@ -373,8 +364,7 @@ class LinkList {
   <?php }
 
   function links_listV2HTML() { ?>
-    <button id="addLink">Add another Link</button>
-    <button id="save">Save</button>
+    <button id="addLink">Add a Link</button>
 
     <div id="llp-links-list">
       <input type="hidden" name="llp_added_links" value="">
@@ -389,10 +379,11 @@ class LinkList {
               <label for="link<?= $index ?>">Link <?= $index ?></label>
               <input type="text" id="link_<?= $index ?>_title" size="20" name="link_<?= $index ?>_title" value="<?= $title ?>" placeholder="Link title" />
               <input type="url" id="link_<?= $index ?>_url" size="20" name="link_<?= $index ?>_url" value="<?= $link ?>" placeholder="https://" />
+              <button class="remLink">Remove</button>
             </div>
 
             <?php $index++;
-          }
+          } 
         }
       ?>
 
@@ -455,8 +446,14 @@ class LinkList {
     <textarea type="text" name="llp_description" placeholder="Bio/description"><?= esc_html(get_option('llp_description')) ?></textarea>
   <?php }
 
-  public static function Output() {
+  /**
+   * 
+   * Output section
+   * 
+   * 
+   */
 
+  public static function Output() {
     $image_attributes = wp_get_attachment_image_src(get_option('llp_profile_picture'), 'full');
     $src = $image_attributes[0] ?? plugins_url("/assets/default_profile_picture.png", __FILE__);
 
@@ -481,7 +478,7 @@ class LinkList {
             $linksArr = unserialize($result);
             
             foreach ($linksArr as $title => $link) { ?>           
-              <a href="<?= $link ?>" class=<?= get_option("llp_appearance") ?> style="background-color: <?= get_option("llp_link_background_color") ?>; color: <?= get_option("llp_link_text_color") ?>"><?= $title ?></a>
+              <a href="<?= $link ?>" target="_blank" class=<?= get_option("llp_appearance") ?> style="background-color: <?= get_option("llp_link_background_color") ?>; color: <?= get_option("llp_link_text_color") ?>"><?= $title ?></a>
             <?php }
           }
         ?>
@@ -493,7 +490,7 @@ class LinkList {
 
           foreach ($socials as $social) { 
             if (get_option($social)) { ?>
-              <a href="<?= get_option($social) ?? "" ?>">
+              <a href="<?= get_option($social) ?? "" ?>" target="_blank">
               <?php 
                 $option_name = explode("_", $social)[1];
                 if (in_array($option_name, ["facebook", "twitter", "instagram"])) { ?>

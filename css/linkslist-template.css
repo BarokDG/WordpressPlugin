@@ -22,7 +22,7 @@
   min-height: 100vh;
 
   text-align: center;
-  padding: var(--spacing-xlarge) var(--spacing-base);
+  padding: var(--spacing-large) var(--spacing-base);
 }
 
 .linkslist-main img {
@@ -79,5 +79,19 @@
 
 h1 {
   font-size: var(--text-heading);
+  margin: 0;
   margin-top: var(--spacing-base);
+}
+
+.linkslist-banner {
+  background: aliceblue;
+  color: navy;
+
+  border: 2px solid;
+
+  max-width: 900px;
+  margin: 0 auto var(--spacing-medium);
+  padding: var(--spacing-base) 0;
+
+  font-size: var(--text-copy);
 }

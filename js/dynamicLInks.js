@@ -30,8 +30,15 @@ jQuery("#addLink").click(function (event) {
   return false;
 });
 
-jQuery("#save").click(function (event) {
-  event.preventDefault();
+jQuery(document).ready(function () {
+  jQuery(document).on("click", ".remLink", function (event) {
+    event.preventDefault();
+
+    jQuery(this).parent("div").remove();
+  });
+});
+
+jQuery("#main-form #submit").click(function (event) {
   var links = jQuery("#llp-links-list div input");
 
   var keys = "";

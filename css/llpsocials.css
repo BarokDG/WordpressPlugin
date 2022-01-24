@@ -1,28 +1,45 @@
 .llp-inner-input-container {
-  position: relative;
+  display: flex;
+  margin-bottom: 16px;
 }
 
 label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
+  width: 100px;
+  border: 1px solid black;
+  background: black;
+  color: white;
+  padding: 10px 8px;
 
-  transition: font-size 300ms;
+  text-align: right;
 }
 
 input[type="text"] {
-  outline: none;
-  border-color: transparent !important;
-  border-bottom-color: black !important;
-  background: none !important;
-  border-bottom-width: 2px;
+  margin: 0;
+  border-radius: 0;
+  border-color: black;
+  border-left-color: none;
 
-  margin-bottom: 30px;
+  color: black;
 }
 
-.filled label,
-input:focus ~ label {
-  top: -20px;
-  font-size: 12px;
+input:focus {
+  outline: none !important;
+  border-color: black !important;
+  box-shadow: none !important;
+}
+
+::-webkit-input-placeholder {
+  color: #ababab;
+}
+
+::-moz-placeholder {
+  color: #ababab;
+}
+
+::-ms-placeholder {
+  color: #ababab;
+}
+
+::placeholder {
+  color: #ababab;
 }
