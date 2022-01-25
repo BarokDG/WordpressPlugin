@@ -28,8 +28,9 @@
 }
 
 .llp-appearance [type="radio"]:checked + .llp-preview {
-  outline: 3px blue solid;
+  outline: 3px #817ed9 solid;
   outline-offset: 3px;
+  background: #f1c2f2;
 }
 
 .llp-preview {
@@ -55,27 +56,132 @@
 .llp-preview a,
 .llp-links a {
   display: block;
+  text-align: center;
+
   text-decoration: none;
   color: black;
 
   height: 50px;
   margin-bottom: 20px;
-  background: black;
+  background: #bfa7f2;
 }
 
-.default:hover,
-.classy:hover,
-a.default-hover,
-a.classy-hover
- {
-  background: none;
+a[class*="-hover"] {
+  color: #07060d;
+  line-height: 50px;
+}
+
+.llp-links a:hover {
+  transition: all 300ms;
+}
+
+a.default:hover,
+a.classy:hover {
+  background: none !important;
   outline: 2px solid;
+  color: black;
+}
+
+a.default-hover,
+a.classy-hover {
+  animation: outline-btn 4s infinite;
+}
+
+@keyframes outline-btn {
+  25%,
+  80% {
+    background: none;
+    outline: 2px solid;
+    color: black;
+  }
 }
 
 .classy {
   border-radius: 30px;
 }
 
-a.class-hover {
-  backgroun
+a.retro:hover {
+  border-style: double;
+  background: none !important;
+  color: black;
+}
+
+a.retro-hover {
+  animation: double-border-btn 4s infinite;
+}
+
+@keyframes double-border-btn {
+  25%,
+  80% {
+    border-style: double;
+    background: none;
+    color: black;
+  }
+}
+
+.modern,
+.bubbly {
+  box-shadow: 0 5px #07060d;
+  position: relative;
+}
+
+.bubbly {
+  border-radius: 30px;
+}
+
+a.modern:hover,
+a.bubbly:hover {
+  box-shadow: 0 2px #07060d;
+  top: 3px;
+}
+
+a.modern-hover,
+a.bubbly-hover {
+  animation: top-boxshadow-btn 4s infinite;
+}
+
+@keyframes top-boxshadow-btn {
+  25%,
+  80% {
+    box-shadow: 0 2px #07060d;
+    top: 3px;
+  }
+}
+
+a.cool {
+  position: relative;
+}
+
+a.cool::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  height: 5px;
+  width: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    black,
+    black 1px,
+    transparent 2px,
+    transparent 5px
+  );
+
+  transition: height 300ms;
+}
+
+a.cool:hover::after {
+  height: 10px;
+}
+
+a.cool-hover::after {
+  animation: gradient-btn 4s infinite;
+}
+
+@keyframes gradient-btn {
+  25%,
+  80% {
+    height: 10px;
+  }
 }

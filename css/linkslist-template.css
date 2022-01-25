@@ -54,6 +54,7 @@
 
   margin-bottom: var(--spacing-small);
   max-width: 800px;
+  width: 90vw;
 
   margin-left: auto;
   margin-right: auto;
@@ -90,6 +91,7 @@ h1 {
   border: 2px solid;
 
   max-width: 900px;
+  width: 92vw;
   margin: 0 auto var(--spacing-medium);
   padding: var(--spacing-base) 0;
 

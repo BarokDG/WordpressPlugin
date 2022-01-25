@@ -90,19 +90,12 @@ class LinkList {
     add_action("wp_ajax_do_something", 'do_something');
   }
 
-  function do_something() {
-    global $wpdb;
-
-    $wpdb->insert('wp_options', array("llp_name" => "Barok"));
-    wp_die();
-  }
-
   function appearancePageAssets() {
     wp_enqueue_style("appearancePageStyles", plugins_url("css/llpappearance.css", __FILE__));
   }
 
   function socialsPageAssets() {
-    wp_enqueue_script("socials-js", plugins_url("/js/llpsocials.js", __FILE__ ), array(), '', true);
+    wp_enqueue_script("socials-js", plugins_url("/js/llpSocials.js", __FILE__ ), array('jquery'), '', true);
     wp_enqueue_style("socialsPageStyles", plugins_url("css/llpsocials.css", __FILE__));
   }
 
@@ -204,10 +197,10 @@ class LinkList {
 
     // Social Icons
     add_settings_field('llp_social_icons', "Social Icons", array($this, 'socialIconsHTML'), 'linkslist-socials-page', 'llp_socials_section');
-    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitize_callback' => 'sanitize_text_field'));
-    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitize_callback' => 'sanitize_text_field'));
+    register_setting('linkslistpluginsocials', "llp_facebook_url", array('sanitize_callback', array($this, 'format_social_link')));
+    register_setting('linkslistpluginsocials', "llp_twitter_url", array('sanitize_callback', array($this, 'format_social_link')));
+    register_setting('linkslistpluginsocials', "llp_instagram_url", array('sanitize_callback', array($this, 'format_social_link')));
+    register_setting('linkslistpluginsocials', "llp_codepen_url", array('sanitize_callback', array($this, 'format_social_link')));
     register_setting('linkslistpluginsocials', "llp_email_url", array('sanitize_callback' => array($this, 'sanitize_email_field')));
     register_setting('linkslistpluginsocials', "llp_website_url", array('sanitize_callback' => array($this, 'sanitize_url')));
 
@@ -224,6 +217,12 @@ class LinkList {
    * Validation callbacks
    * 
    */
+
+  function format_social_link($data) {
+    if (!empty($data)) {
+
+    }
+  }
 
   function serialize_data($data) {
     if (empty($data) or $data === "=>") {
@@ -305,7 +304,7 @@ class LinkList {
   <?php }
 
   function appearanceHTML() {
-    $options = ["default", "classy", "retro", "modern", "bubbly"];
+    $options = ["default", "classy", "retro", "modern", "bubbly", "cool"];
     ?>
     <div class="appearance-wrapper">
       <?php 
@@ -317,7 +316,7 @@ class LinkList {
                 "<a href='#' class=$option></a>", 3
               )?>
 
-              <a href="#" class="<?= $option ?> <?= $option ?>-hover"></a>
+              <a href="#" class="<?= $option ?> <?= $option ?>-hover">Hover</a>
             </div>
           </div>
         <?php }
@@ -328,7 +327,9 @@ class LinkList {
   function socialIconsHTML() {
     $options = ["facebook", "twitter", "instagram", "email", "codepen", "website"];
 
-    foreach ($options as $option) { ?>
+    foreach ($options as $option) { 
+      $username = end(explode("/", get_option("llp_${option}_url")));
+      ?>
       <div class="llp-inner-input-container">
         <?php if (in_array($option, ["website", "email"])) { ?>
           <label for="llp_<?= $option ?>_url"><?= ucFirst($option) ?></label>
@@ -338,10 +339,15 @@ class LinkList {
           <label for="llp_<?= $option ?>_url"><?="$option.com/" ?></label>
         <?php } ?>
 
+
         <input type="text" name="llp_<?= $option ?>_url"
+          id="<?= $option ?>"
+          class="<?= !in_array($option, ["email", "website"]) ? "filter-url" : "" ?>"
+          data-check="<?= get_option("llp_{$option}_url") ? "added" : "" ?>"
+          data-confirm="<?= get_option( "llp_${option}_url") ?>"
           placeholder="<?= (in_array($option, ["website", "email"])) ? ($option === "email" ? "example@email.com" : "www.example.com") : "username" ?>"
-          value='<?= $option !== "email" ? get_option("llp_{$option}_url") : str_replace("mailto:", "", get_option("llp_${option}_url"))
-        ?>'>
+          value="<?= $option !== "email" ? ($option !== "website" ? $username : get_option("llp_{$option}_url")) : str_replace("mailto:", "", get_option("llp_${option}_url"))?>"
+        >
 
       </div>
     <?php }
@@ -462,11 +468,12 @@ class LinkList {
     
     ?>
     <div class="linkslist-main" style="background-image: url(<?= $bg_src ?>); color: <?= get_option("llp_main_text_color") ?>">
-      <div class="linkslist-banner"><?php
-        if (get_option( "llp_show_announcement")) {
-          echo  get_option("llp_announcement"); 
-        }
-      ?></div>
+      <?php
+      if (get_option( "llp_show_announcement")) {?>
+        <div class="linkslist-banner">
+          <?=  get_option("llp_announcement"); ?>
+        </div>
+        <?php } ?>
       <img src="<?= $src ?>" alt="" />
       <h1><?= get_option('llp_profile_title') ?></h1>
       <p><?= get_option('llp_description') ?></p>
